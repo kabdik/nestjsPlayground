@@ -39,7 +39,9 @@ export class User extends BaseEntity {
     roles: Roles[];
 
     addRole(role:Roles){
-        if (this.roles==null){
+        if (this.roles===null){
+            console.log("enetered");
+            
             this.roles=Array<Roles>()
         }
         this.roles.push(role)

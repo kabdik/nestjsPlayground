@@ -1,8 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { addRoleDto } from "src/roles/dto/addRole.dto";
 import { Roles } from "src/roles/roles";
 import { RolesService } from "src/roles/roles.service";
 import { Repository } from "typeorm";
+import { banUserDto } from "./dto/banUser.dto";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { User } from "./user";
 
@@ -32,12 +34,36 @@ export class UsersService {
     }
 
     async getUserByEmail(email:string){
-        const user=this.userRepository.findOne({
+        const user=await this.userRepository.findOne({
             where:{email},
             relations:{
                 roles:true
             }
         })
+        return user
+    }
+
+    async addRole(addRoleDto:addRoleDto){
+        const user=await this.userRepository.findOne({where:{id:addRoleDto.userId},relations:{roles:true}})
+        console.log(user);
+        const role=await this.roleService.getRoleByValue(addRoleDto.value)
+        console.log(role);
+        if(!user || !role){
+            throw new HttpException('Wrong input data',HttpStatus.BAD_REQUEST)
+        }
+        user.addRole(role)
+        await user.save()
+        return user
+    }
+
+    async banUser(banUserDto:banUserDto){
+        const user=await this.userRepository.findOne({where:{id:banUserDto.id}})
+        if (!user) {
+            throw new HttpException('There is no user with such id', HttpStatus.NOT_FOUND);
+        }
+        user.banned=true
+        user.banReason=banUserDto.banReason
+        await user.save()
         return user
     }
 }
