@@ -1,3 +1,4 @@
+import { Posts } from "src/posts/posts";
 import { Roles } from "src/roles/roles";
 import {
     Entity,
@@ -6,6 +7,7 @@ import {
     BaseEntity,
     ManyToMany,
     JoinTable,
+    OneToMany,
 } from "typeorm";
 @Entity("users")
 export class User extends BaseEntity {
@@ -38,12 +40,23 @@ export class User extends BaseEntity {
     })
     roles: Roles[];
 
+    @OneToMany(()=>Posts,(post)=>post.author,{cascade:true})
+    posts:Posts[]
+
+
     addRole(role:Roles){
-        if (this.roles===null){
+        if (this.roles==null){
             console.log("enetered");
             
             this.roles=Array<Roles>()
         }
         this.roles.push(role)
+    }
+
+    addPost(post:Posts){
+        if (this.posts==null){
+            this.posts=Array<Posts>()
+        }
+        this.posts.push(post)
     }
 }

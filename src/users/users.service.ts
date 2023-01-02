@@ -18,7 +18,7 @@ export class UsersService {
 
     async createUser(dto: CreateUserDto) {
         const user = await this.userRepository.create(dto);
-        const role = await this.roleService.getRoleByValue("user");
+        const role = await this.roleService.getRoleByValue("admin");
         user.addRole(role);
         await this.userRepository.save(user);
         return user;
@@ -33,37 +33,54 @@ export class UsersService {
         return users;
     }
 
-    async getUserByEmail(email:string){
-        const user=await this.userRepository.findOne({
-            where:{email},
-            relations:{
-                roles:true
-            }
-        })
+    async getUserByEmail(email: string) {
+        const user = await this.userRepository.findOne({
+            where: { email },
+            relations: {
+                roles: true,
+                posts: true,
+            },
+        });
+        return user;
+    }
+
+    async getUserById(id: number) {
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: { posts: true },
+        });
         return user
     }
 
-    async addRole(addRoleDto:addRoleDto){
-        const user=await this.userRepository.findOne({where:{id:addRoleDto.userId},relations:{roles:true}})
+    async addRole(addRoleDto: addRoleDto) {
+        const user = await this.userRepository.findOne({
+            where: { id: addRoleDto.userId },
+            relations: { roles: true },
+        });
         console.log(user);
-        const role=await this.roleService.getRoleByValue(addRoleDto.value)
+        const role = await this.roleService.getRoleByValue(addRoleDto.value);
         console.log(role);
-        if(!user || !role){
-            throw new HttpException('Wrong input data',HttpStatus.BAD_REQUEST)
+        if (!user || !role) {
+            throw new HttpException("Wrong input data", HttpStatus.BAD_REQUEST);
         }
-        user.addRole(role)
-        await user.save()
-        return user
+        user.addRole(role);
+        await user.save();
+        return user;
     }
 
-    async banUser(banUserDto:banUserDto){
-        const user=await this.userRepository.findOne({where:{id:banUserDto.id}})
+    async banUser(banUserDto: banUserDto) {
+        const user = await this.userRepository.findOne({
+            where: { id: banUserDto.id },
+        });
         if (!user) {
-            throw new HttpException('There is no user with such id', HttpStatus.NOT_FOUND);
+            throw new HttpException(
+                "There is no user with such id",
+                HttpStatus.NOT_FOUND
+            );
         }
-        user.banned=true
-        user.banReason=banUserDto.banReason
-        await user.save()
-        return user
+        user.banned = true;
+        user.banReason = banUserDto.banReason;
+        await user.save();
+        return user;
     }
 }

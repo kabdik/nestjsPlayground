@@ -8,6 +8,9 @@ import { UsersModule } from "./users/users.module";
 import { RolesModule } from './roles/roles.module';
 import { Roles } from "./roles/roles";
 import { AuthModule } from './auth/auth.module';
+import { PostsModule } from './posts/posts.module';
+import { Posts } from "./posts/posts";
+import { FilesModule } from './files/files.module';
 @Module({
     imports: [
         ConfigModule.forRoot({ envFilePath: `.${process.env.NODE_ENV}.env` }),
@@ -18,12 +21,14 @@ import { AuthModule } from './auth/auth.module';
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User,Roles],
+            entities: [User,Roles,Posts],
             synchronize: true,
         }),
         UsersModule,
         RolesModule,
         AuthModule,
+        PostsModule,
+        FilesModule,
     ],
     controllers: [AppController],
     providers: [AppService],
